@@ -1,5 +1,42 @@
 #!/usr/bin/env python3
 
+# import sys
+# sys.path.append('../')
+
+# import gi
+# import configparser
+
+# gi.require_version('Gst', '1.0')
+# from gi.repository import GLib, Gst
+
+
+# from os import path
+# import os.path
+# import os
+# import cv2
+# import pyds
+# import numpy as np
+# from common.FPS import PERF_DATA
+# from common.bus_call import bus_call
+# from common.is_aarch_64 import is_aarch64
+# from common.utils import long_to_uint64
+# import platform
+# import math
+# import time
+# from ctypes import *
+# import shutil
+
+
+import sys
+sys.path.append('../')
+
+import gi
+import configparser
+
+gi.require_version('Gst', '1.0')
+from gi.repository import GLib, Gst
+
+
 from os import path
 import os.path
 import os
@@ -14,15 +51,7 @@ import platform
 import math
 import time
 from ctypes import *
-from gi.repository import GLib, Gst
-import configparser
-import gi
-import sys
 import shutil
-
-sys.path.append('../')
-
-gi.require_version('Gst', '1.0')
 
 ################################################################
 
@@ -507,8 +536,8 @@ def args_parser(args):
 
     global perf_data
     global number_sources
-    perf_data = PERF_DATA(len(args) - 2)
-    number_sources = len(args) - 2
+    perf_data = PERF_DATA(len(args) - 1)
+    number_sources = len(args) - 1
 
     return True
 
@@ -683,6 +712,7 @@ def main(args):
     #############################
 
     msgbroker.set_property('config', AMQP_CONFIG_FILE)
+    msgbroker.set_property('proto-lib', AMQP_LIB_FILE)
 
     #############################
 
