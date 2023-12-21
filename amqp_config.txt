@@ -1,0 +1,8 @@
+[message-broker]
+password = 1
+#optional
+hostname = 192.168.0.201
+username = agentnode-raspi
+port = 5672
+exchange = amq.topic
+topic = message
