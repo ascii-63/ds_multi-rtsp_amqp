@@ -476,6 +476,9 @@ def tiler_sink_pad_buffer_probe(_pad, _info, _u_data):
             PGIE_CLASS_ID_BICYCLE: 0,
             PGIE_CLASS_ID_ROADSIGN: 0
         }
+
+        timestamp = frame_meta.ntp_timestamp
+
         while l_obj is not None:
             try:
                 # Casting l_obj.data to pyds.NvDsObjectMeta
@@ -515,8 +518,9 @@ def tiler_sink_pad_buffer_probe(_pad, _info, _u_data):
         global perf_data
         perf_data.update_fps(stream_index)
         if save_image:
-            img_path = "{}/stream_{}/frame_{}.jpg".format(
-                FRAMES_DIR, frame_meta.pad_index, frame_number)
+            # img_path = "{}/stream_{}/frame_{}.jpg".format(
+            #     FRAMES_DIR, frame_meta.pad_index, frame_number)
+            img_path = "{}/{}.jpg".format(FRAMES_DIR, timestamp)
             cv2.imwrite(img_path, frame_copy)
         saved_count["stream_{}".format(frame_meta.pad_index)] += 1
         try:
