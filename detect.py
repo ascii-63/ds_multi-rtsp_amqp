@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+###################### CORRECT IMPORT ######################
+
 # import sys
 # sys.path.append('../')
 
@@ -26,7 +28,9 @@
 # from ctypes import *
 # import shutil
 # from datetime import datetime, timezone
+# import pytz
 
+############################################################
 
 import sys
 sys.path.append('../')
@@ -283,7 +287,7 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
 
             confidence = obj_meta.confidence
             class_id = obj_meta.class_id
-            
+
             if (MIN_CONFIDENCE < confidence < MAX_CONFIDENCE) and (class_id == PGIE_CLASS_ID_PERSON) and (frame_number % FRAMES_PER_MESSAGE == 0):
                 # Message is being sent for Person object with confidence in range (MIN_CONFIDENCE, MAX_CONFIDENCE), after FRAMES_PER_MESSAGE frames
 
@@ -450,21 +454,16 @@ def convert_timestamp(timestamp):
     Convert timestamp from Unix epoch to human-readable format
     """
 
-    # Convert nanoseconds to seconds and milliseconds
-    seconds = int(timestamp) // 10**9
-    milliseconds = (int(timestamp) % 10**9) // 10**6
+    # Convert the UTC datetime to UTC+7
+    new_timestamp = timestamp + (7 * 60 * 60 * 10**9)
 
-    # Create a datetime object in UTC
-    dt_object_utc = datetime.utcfromtimestamp(seconds)
+    seconds = int(new_timestamp) // 10**9
+    milliseconds = (int(new_timestamp) % 10**9) // 10**6
 
-    # Set the timezone to UTC+7
-    utc_plus_7 = pytz.timezone('Asia/Bangkok')
-    
-    # Convert the UTC datetime object to UTC+7
-    dt_object_utc_plus_7 = utc_plus_7.localize(dt_object_utc)
+    # Create a datetime object in UTC+7
+    dt_object = datetime.utcfromtimestamp(seconds)
 
-    # Format the datetime object as a string with milliseconds
-    formatted_timestamp = dt_object_utc_plus_7.strftime('%Y-%m-%dT%H:%M:%S.') + f"{milliseconds:03d}Z"
+    formatted_timestamp = dt_object.strftime('%Y-%m-%dT%H:%M:%S.') + f"{milliseconds:03d}Z"
 
     return formatted_timestamp
 
