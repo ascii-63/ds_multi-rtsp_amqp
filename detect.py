@@ -25,6 +25,7 @@
 # import time
 # from ctypes import *
 # import shutil
+# from datetime import datetime, timezone
 
 
 import sys
@@ -52,6 +53,7 @@ import math
 import time
 from ctypes import *
 import shutil
+from datetime import datetime, timezone
 
 ################################################################
 
@@ -74,10 +76,10 @@ TILED_OUTPUT_WIDTH = MUXER_OUTPUT_WIDTH
 TILED_OUTPUT_HEIGHT = MUXER_OUTPUT_HEIGHT
 SINK_QOS = 0
 SINK_SYNC = 0
-MSGCONV_SCHEMA_TYPE = 0  # 0 for Full, 1 for Minimal
+MSGCONV_SCHEMA_TYPE = 1  # 0 for Full, 1 for Minimal
 
-MIN_CONFIDENCE = 0.3
-MAX_CONFIDENCE = 0.4
+MIN_CONFIDENCE = 0.9
+MAX_CONFIDENCE = 1
 MAX_DISPLAY_LEN = 64
 MAX_TIME_STAMP_LEN = 32
 FRAMES_PER_MESSAGE = 30
@@ -441,6 +443,23 @@ def draw_bounding_boxes(_image, _obj_meta, _confidence):
     return _image
 
 
+def convert_timestamp(timestamp):
+    """
+    Convert timestamp from Unix epoch to human-readable format
+    """
+
+    # Convert nanoseconds to seconds
+    seconds = int(timestamp) // 10**9
+
+    # Create a datetime object in UTC
+    dt_object = datetime.utcfromtimestamp(seconds)
+
+    # Format the datetime object as a string
+    formatted_timestamp = dt_object.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+
+    return formatted_timestamp
+
+
 def tiler_sink_pad_buffer_probe(_pad, _info, _u_data):
     """
     Extract metadata received on tiler src pad
@@ -520,7 +539,7 @@ def tiler_sink_pad_buffer_probe(_pad, _info, _u_data):
         if save_image:
             # img_path = "{}/stream_{}/frame_{}.jpg".format(
             #     FRAMES_DIR, frame_meta.pad_index, frame_number)
-            img_path = "{}/{}.jpg".format(FRAMES_DIR, timestamp)
+            img_path = "{}/{}.jpg".format(FRAMES_DIR, convert_timestamp(timestamp))
             cv2.imwrite(img_path, frame_copy)
         saved_count["stream_{}".format(frame_meta.pad_index)] += 1
         try:
