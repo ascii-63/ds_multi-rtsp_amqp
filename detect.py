@@ -283,8 +283,9 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
 
             confidence = obj_meta.confidence
             class_id = obj_meta.class_id
-            if (MIN_CONFIDENCE < confidence < MAX_CONFIDENCE) and (class_id == PGIE_CLASS_ID_PERSON):
-                # Message is being sent for Person object with confidence in range (MIN_CONFIDENCE, MAX_CONFIDENCE)
+            
+            if (MIN_CONFIDENCE < confidence < MAX_CONFIDENCE) and (class_id == PGIE_CLASS_ID_PERSON) and (frame_number % FRAMES_PER_MESSAGE == 0):
+                # Message is being sent for Person object with confidence in range (MIN_CONFIDENCE, MAX_CONFIDENCE), after FRAMES_PER_MESSAGE frames
 
                 # Allocating an NvDsEventMsgMeta instance and getting reference to it
                 msg_meta = pyds.alloc_nvds_event_msg_meta()
@@ -312,36 +313,6 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
                                                      user_event_meta)
                 else:
                     print("[ERROR] in attaching event meta to buffer\n")  
-
-            # if frame_number % FRAMES_PER_MESSAGE == 0:
-            #     # Message is being sent for all objects every `FRAMES_PER_MESSAGE` frames.
-
-            #     # Allocating an NvDsEventMsgMeta instance and getting reference to it
-            #     msg_meta = pyds.alloc_nvds_event_msg_meta()
-
-            #     msg_meta.bbox.top = obj_meta.rect_params.top
-            #     msg_meta.bbox.left = obj_meta.rect_params.left
-            #     msg_meta.bbox.width = obj_meta.rect_params.width
-            #     msg_meta.bbox.height = obj_meta.rect_params.height
-            #     msg_meta.frameId = frame_number
-            #     msg_meta.trackingId = long_to_uint64(obj_meta.object_id)
-            #     msg_meta.confidence = obj_meta.confidence
-            #     msg_meta = generate_event_msg_meta(msg_meta, obj_meta.class_id)
-
-            #     user_event_meta = pyds.nvds_acquire_user_meta_from_pool(
-            #         batch_meta)
-
-            #     if user_event_meta:
-            #         user_event_meta.user_meta_data = msg_meta
-            #         user_event_meta.base_meta.meta_type = pyds.NvDsMetaType.NVDS_EVENT_MSG_META
-
-            #         # Setting callbacks in the event msg meta
-            #         pyds.user_copyfunc(user_event_meta, meta_copy_func)
-            #         pyds.user_releasefunc(user_event_meta, meta_free_func)
-            #         pyds.nvds_add_user_meta_to_frame(frame_meta,
-            #                                          user_event_meta)
-            #     else:
-            #         print("[ERROR] in attaching event meta to buffer\n")
 
             try:
                 l_obj = l_obj.next
@@ -547,7 +518,7 @@ def tiler_sink_pad_buffer_probe(_pad, _info, _u_data):
             # Periodically check for objects with borderline confidence value that may be false positive detections.
             # If such detections are found, annotate the frame with bboxes and confidence value.
             # Save the annotated frame to file.
-            if saved_count["stream_{}".format(frame_meta.pad_index)] % 30 == 0 and (  # Each 30 frames get 1 image
+            if saved_count["stream_{}".format(frame_meta.pad_index)] % FRAMES_PER_MESSAGE == 0 and (  # Each FRAMES_PER_MESSAGE frames get 1 image
                     MIN_CONFIDENCE < obj_meta.confidence < MAX_CONFIDENCE):
                 if is_first_obj:
                     is_first_obj = False
@@ -575,8 +546,6 @@ def tiler_sink_pad_buffer_probe(_pad, _info, _u_data):
         global perf_data
         perf_data.update_fps(stream_index)
         if save_image:
-            # img_path = "{}/stream_{}/frame_{}.jpg".format(
-            #     FRAMES_DIR, frame_meta.pad_index, frame_number)
             img_path = "{}/{}.jpg".format(FRAMES_DIR, convert_timestamp(timestamp))
             cv2.imwrite(img_path, frame_copy)
         saved_count["stream_{}".format(frame_meta.pad_index)] += 1
