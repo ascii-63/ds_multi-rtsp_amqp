@@ -54,6 +54,7 @@ import time
 from ctypes import *
 import shutil
 from datetime import datetime, timezone
+import pytz
 
 ################################################################
 
@@ -452,10 +453,14 @@ def convert_timestamp(timestamp):
     seconds = int(timestamp) // 10**9
 
     # Create a datetime object in UTC
-    dt_object = datetime.utcfromtimestamp(seconds)
+    dt_object_utc = datetime.utcfromtimestamp(seconds)
+
+    # Set the timezone to UTC+7
+    utc_plus_7 = pytz.timezone('Asia/Bangkok')
+    dt_object_utc_plus_7 = dt_object_utc.replace(tzinfo=utc_plus_7)
 
     # Format the datetime object as a string
-    formatted_timestamp = dt_object.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    formatted_timestamp = dt_object_utc_plus_7.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
 
     return formatted_timestamp
 
