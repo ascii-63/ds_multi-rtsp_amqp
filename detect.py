@@ -449,18 +449,21 @@ def convert_timestamp(timestamp):
     Convert timestamp from Unix epoch to human-readable format
     """
 
-    # Convert nanoseconds to seconds
+    # Convert nanoseconds to seconds and milliseconds
     seconds = int(timestamp) // 10**9
+    milliseconds = (int(timestamp) % 10**9) // 10**6
 
     # Create a datetime object in UTC
     dt_object_utc = datetime.utcfromtimestamp(seconds)
 
     # Set the timezone to UTC+7
     utc_plus_7 = pytz.timezone('Asia/Bangkok')
-    dt_object_utc_plus_7 = dt_object_utc.replace(tzinfo=utc_plus_7)
+    
+    # Convert the UTC datetime object to UTC+7
+    dt_object_utc_plus_7 = utc_plus_7.localize(dt_object_utc)
 
-    # Format the datetime object as a string
-    formatted_timestamp = dt_object_utc_plus_7.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    # Format the datetime object as a string with milliseconds
+    formatted_timestamp = dt_object_utc_plus_7.strftime('%Y-%m-%dT%H:%M:%S.') + f"{milliseconds:03d}Z"
 
     return formatted_timestamp
 
