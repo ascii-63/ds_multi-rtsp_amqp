@@ -281,10 +281,10 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
             txt_params.set_bg_clr = 1
             txt_params.text_bg_clr.set(0.0, 0.0, 0.0, 1.0)
 
-            # Ideally NVDS_EVENT_MSG_META should be attached to buffer by the component implementing detection/recognition logic.
-            # Here it demonstrates how to use / attach that meta data.
-            if frame_number % FRAMES_PER_MESSAGE == 0:
-                # Message is being sent for all objects every `FRAMES_PER_MESSAGE` frames.
+            confidence = obj_meta.confidence
+            class_id = obj_meta.class_id
+            if (MIN_CONFIDENCE < confidence < MAX_CONFIDENCE) and (class_id == PGIE_CLASS_ID_PERSON):
+                # Message is being sent for Person object with confidence in range (MIN_CONFIDENCE, MAX_CONFIDENCE)
 
                 # Allocating an NvDsEventMsgMeta instance and getting reference to it
                 msg_meta = pyds.alloc_nvds_event_msg_meta()
@@ -311,7 +311,37 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
                     pyds.nvds_add_user_meta_to_frame(frame_meta,
                                                      user_event_meta)
                 else:
-                    print("[ERROR] in attaching event meta to buffer\n")
+                    print("[ERROR] in attaching event meta to buffer\n")  
+
+            # if frame_number % FRAMES_PER_MESSAGE == 0:
+            #     # Message is being sent for all objects every `FRAMES_PER_MESSAGE` frames.
+
+            #     # Allocating an NvDsEventMsgMeta instance and getting reference to it
+            #     msg_meta = pyds.alloc_nvds_event_msg_meta()
+
+            #     msg_meta.bbox.top = obj_meta.rect_params.top
+            #     msg_meta.bbox.left = obj_meta.rect_params.left
+            #     msg_meta.bbox.width = obj_meta.rect_params.width
+            #     msg_meta.bbox.height = obj_meta.rect_params.height
+            #     msg_meta.frameId = frame_number
+            #     msg_meta.trackingId = long_to_uint64(obj_meta.object_id)
+            #     msg_meta.confidence = obj_meta.confidence
+            #     msg_meta = generate_event_msg_meta(msg_meta, obj_meta.class_id)
+
+            #     user_event_meta = pyds.nvds_acquire_user_meta_from_pool(
+            #         batch_meta)
+
+            #     if user_event_meta:
+            #         user_event_meta.user_meta_data = msg_meta
+            #         user_event_meta.base_meta.meta_type = pyds.NvDsMetaType.NVDS_EVENT_MSG_META
+
+            #         # Setting callbacks in the event msg meta
+            #         pyds.user_copyfunc(user_event_meta, meta_copy_func)
+            #         pyds.user_releasefunc(user_event_meta, meta_free_func)
+            #         pyds.nvds_add_user_meta_to_frame(frame_meta,
+            #                                          user_event_meta)
+            #     else:
+            #         print("[ERROR] in attaching event meta to buffer\n")
 
             try:
                 l_obj = l_obj.next
