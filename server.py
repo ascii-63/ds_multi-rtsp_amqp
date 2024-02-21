@@ -300,10 +300,8 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
             confidence = obj_meta.confidence
             class_id = obj_meta.class_id
 	    
-	  
-
-            if (MIN_CONFIDENCE < confidence < MAX_CONFIDENCE) and (frame_number % FRAMES_PER_MESSAGE == 0):
-            #if (0.01 < confidence < MAX_CONFIDENCE):
+            # if (MIN_CONFIDENCE < confidence < MAX_CONFIDENCE) and (frame_number % FRAMES_PER_MESSAGE == 0):
+            if (MIN_CONFIDENCE < confidence < MAX_CONFIDENCE):
                 # Message is being sent for Person object with confidence in range (MIN_CONFIDENCE, MAX_CONFIDENCE), after FRAMES_PER_MESSAGE frames
 
                 # Allocating an NvDsEventMsgMeta instance and getting reference to it
@@ -534,9 +532,9 @@ def tiler_sink_pad_buffer_probe(_pad, _info, _u_data):
             # Periodically check for objects with borderline confidence value that may be false positive detections.
             # If such detections are found, annotate the frame with bboxes and confidence value.
             # Save the annotated frame to file.
-            if global_frame_count % FRAMES_PER_MESSAGE == 0 and (MIN_CONFIDENCE < obj_meta.confidence < MAX_CONFIDENCE):
-            # if saved_count["stream_{}".format(frame_meta.pad_index)] % FRAMES_PER_MESSAGE == 0 and (  # Each FRAMES_PER_MESSAGE frames get 1 image
-            #         MIN_CONFIDENCE < obj_meta.confidence < MAX_CONFIDENCE):
+            # if global_frame_count % FRAMES_PER_MESSAGE == 0 and (MIN_CONFIDENCE < obj_meta.confidence < MAX_CONFIDENCE):
+            if saved_count["stream_{}".format(frame_meta.pad_index)] % FRAMES_PER_MESSAGE == 0 and (  # Each FRAMES_PER_MESSAGE frames get 1 image
+                    MIN_CONFIDENCE < obj_meta.confidence < MAX_CONFIDENCE):
                 if is_first_obj:
                     is_first_obj = False
                     # Getting Image data using nvbufsurface
