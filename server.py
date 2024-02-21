@@ -68,6 +68,7 @@ number_sources = None
 is_display = True
 frame_count = {}
 saved_count = {}
+global_frame_count = 0
 
 pgie_classes_str = ["Person", "TwoWheeler", "Vehicle", "RoadSign"]
 
@@ -237,6 +238,8 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
     update params for drawing rectangle, object information, etc...
     """
 
+    global global_frame_count
+
     frame_number = 0
     obj_counter = {
         PGIE_CLASS_ID_VEHICLE: 0,
@@ -264,11 +267,12 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
             continue
 
         # print(f"Timestamp is {frame_meta.ntp_timestamp}") # Example
-
-        batch_id = frame_meta.batch_id
-        frame_number = frame_meta.frame_num
-        print(f"Frame ID: {frame_number}\nBatch ID: {batch_id}")
-
+        # batch_id = frame_meta.batch_id
+        # frame_number = frame_meta.frame_num
+        # print(f"Frame ID: {frame_number}\nBatch ID: {batch_id}")
+        frame_number = global_frame_count
+        global_frame_count = global_frame_count + 1
+        
         l_obj = frame_meta.obj_meta_list
         while l_obj is not None:
             try:
@@ -586,6 +590,8 @@ def main(args):
     global perf_data
     global number_sources
     global is_display
+    global frame_count
+    global saved_count
 
     #############################
 
