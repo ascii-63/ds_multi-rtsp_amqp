@@ -491,6 +491,8 @@ def tiler_sink_pad_buffer_probe(_pad, _info, _u_data):
 
     frame_number = 0
     num_rects = 0
+    global global_frame_count
+
     gst_buffer = _info.get_buffer()
     if not gst_buffer:
         print("[ERROR] Unable to get GstBuffer")
@@ -532,8 +534,9 @@ def tiler_sink_pad_buffer_probe(_pad, _info, _u_data):
             # Periodically check for objects with borderline confidence value that may be false positive detections.
             # If such detections are found, annotate the frame with bboxes and confidence value.
             # Save the annotated frame to file.
-            if saved_count["stream_{}".format(frame_meta.pad_index)] % FRAMES_PER_MESSAGE == 0 and (  # Each FRAMES_PER_MESSAGE frames get 1 image
-                    MIN_CONFIDENCE < obj_meta.confidence < MAX_CONFIDENCE):
+            if global_frame_count % FRAMES_PER_MESSAGE == 0 and (MIN_CONFIDENCE < obj_meta.confidence < MAX_CONFIDENCE):
+            # if saved_count["stream_{}".format(frame_meta.pad_index)] % FRAMES_PER_MESSAGE == 0 and (  # Each FRAMES_PER_MESSAGE frames get 1 image
+            #         MIN_CONFIDENCE < obj_meta.confidence < MAX_CONFIDENCE):
                 if is_first_obj:
                     is_first_obj = False
                     # Getting Image data using nvbufsurface
