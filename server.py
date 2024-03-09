@@ -65,12 +65,12 @@ import pytz
 perf_data = None
 
 number_sources = None
-is_display = True
+is_display = False
 frame_count = {}
 saved_count = {}
 global_frame_count = 0
 
-pgie_classes_str = ["Person", "TwoWheeler", "Vehicle", "RoadSign"]
+pgie_classes_str = ["Person", "TwoWheeler", "Person", "RoadSign"]
 
 PGIE_CLASS_ID_VEHICLE = 2
 PGIE_CLASS_ID_BICYCLE = 1
@@ -101,6 +101,7 @@ AMQP_CONFIG_FILE = "amqp_config.txt"
 MSGCONV_CONFIG_FILE = "message_convert_config.txt"
 
 FRAMES_DIR = "/home/ivsr/frames"
+
 AMQP_LIB_FILE = "/opt/nvidia/deepstream/deepstream-6.3/lib/libnvds_amqp_proto.so"
 
 ################################################################
